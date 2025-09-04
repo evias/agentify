@@ -11,3 +11,5 @@ by re:Software S.L. to satisfy security and general quality standards.
 Copyright 2025 Grégory Saive <greg@evi.as> for re:Software S.L. (resoftware.es).
 
 Licensed under the [3-Clause BSD License](./LICENSE).
+
+[link]: https://agents.md

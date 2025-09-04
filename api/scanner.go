@@ -42,7 +42,7 @@ func PrepareRepository(repoArg string) (string, func(), error) {
 	}
 
 	// Otherwise assume it's a remote and clone into a temp dir.
-	tmp, err := ioutil.TempDir("", "agents-gen-*")
+	tmp, err := ioutil.TempDir("", "agentify-*")
 	if err != nil {
 		return "", nil, err
 	}
@@ -171,8 +171,16 @@ func extractDevSections(md string) []DevSection {
 		line := scanner.Text()
 		if h := strings.TrimLeft(line, " "); strings.HasPrefix(h, "#") {
 			// count heading level
-			lvl := strings.IndexFunc(h, func(r rune) bool { return r != '#' })
-			title := strings.TrimSpace(h[lvl:])
+			lvl := 0
+			for lvl < len(h) && h[lvl] == '#' {
+				lvl++
+			}
+
+			title := "Instructions"
+			if lvl < len(h) {
+				title = strings.TrimSpace(h[lvl:])
+			}
+
 			// new section?
 			found := false
 			lowt := strings.ToLower(title)

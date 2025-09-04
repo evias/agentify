@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 )
 
@@ -23,13 +24,28 @@ func BuildAgentsContent(rs *RepoScan) string {
 	// (1) Extracts the README.md content for an Overview
 	if rs.Readme != "" {
 		sb.WriteString("## Overview\n\n")
+		// Prepare regexes to strip inline and reference‑style links/images
+		reInline := regexp.MustCompile(`!?\[([^\]]+)\]\([^)]+\)`)
+		reRef := regexp.MustCompile(`!?\[([^\]]+)\]\[[^\]]+\]`)
+
 		lines := strings.Split(rs.Readme, "\n")
 		for i, l := range lines {
-			// stop at first secondary heading
-			if strings.HasPrefix(l, "## ") {
+			// stop at first secondary/tertiary heading
+			if strings.HasPrefix(l, "## ") || strings.HasPrefix(l, "### ") {
 				break
 			}
-			// promote main title
+
+			// flatten/remove any markdown links/images, leaving only the link text
+			l = reInline.ReplaceAllString(l, "$1")
+			l = reRef.ReplaceAllString(l, "$1")
+			l = strings.TrimSpace(l)
+
+			// drop lines that are only links/images
+			if strings.HasPrefix(l, "[") || strings.HasPrefix(l, "![") {
+				continue
+			}
+
+			// promote main title to a third-level heading (### )
 			if strings.HasPrefix(l, "# ") {
 				sb.WriteString("### " + strings.TrimPrefix(l, "# ") + "\n")
 			} else {
