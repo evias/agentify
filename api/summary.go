@@ -20,22 +20,66 @@ func BuildAgentsContent(rs *RepoScan) string {
 	sb := &strings.Builder{}
 	sb.WriteString("# AGENTS\n\n")
 
+	// (1) Extracts the README.md content for an Overview
 	if rs.Readme != "" {
 		sb.WriteString("## Overview\n\n")
-		// grab first paragraph of README
-		paragraphs := strings.SplitN(rs.Readme, "\n\n", 2)
-		sb.WriteString(paragraphs[0])
-		sb.WriteString("\n\n")
+		lines := strings.Split(rs.Readme, "\n")
+		for i, l := range lines {
+			// stop at first secondary heading
+			if strings.HasPrefix(l, "## ") {
+				break
+			}
+			// promote main title
+			if strings.HasPrefix(l, "# ") {
+				sb.WriteString("### " + strings.TrimPrefix(l, "# ") + "\n")
+			} else {
+				sb.WriteString(l + "\n")
+			}
+			// if next line is blank and next is "##", we'll still break on next iter.
+			_ = i
+		}
+		sb.WriteString("\n")
 	}
 
-	if len(rs.CmdPackages) > 0 {
+	// (2) List cobra commands found under cmd/*
+	// TODO: should find bin/, dist/, and/or usage instructions.
+	if len(rs.CmdInfos) > 0 {
 		sb.WriteString("## Commands (cmd/*)\n\n")
-		for _, pkg := range rs.CmdPackages {
-			sb.WriteString(fmt.Sprintf("- **%s**: CLI tool under `%s`\n", filepathBase(pkg), pkg))
+		for _, ci := range rs.CmdInfos {
+			sb.WriteString(fmt.Sprintf("- `%s`: %s\n", ci.Use, ci.Short))
 		}
 		sb.WriteString("\n")
 	} else {
 		sb.WriteString("*(no cmd/* packages found)*\n\n")
+	}
+
+	if len(rs.DevSections) > 0 {
+		sb.WriteString("## Developer Setup\n\n")
+		for _, ds := range rs.DevSections {
+			sb.WriteString(ds.Title + "\n\n")
+			// decide filtering: build‑related vs deps‑related vs other
+			tlow := strings.ToLower(ds.Title)
+			keepCode := strings.Contains(tlow, "build")
+			keepList := !keepCode
+			inCodeBlk := false
+			for _, ln := range ds.Lines {
+				if strings.HasPrefix(ln, "```") {
+					inCodeBlk = !inCodeBlk
+					if keepCode {
+						sb.WriteString(ln + "\n")
+					}
+					continue
+				}
+				if inCodeBlk && keepCode {
+					sb.WriteString(ln + "\n")
+					continue
+				}
+				if keepList && strings.HasPrefix(strings.TrimSpace(ln), "- ") {
+					sb.WriteString(ln + "\n")
+				}
+			}
+			sb.WriteString("\n")
+		}
 	}
 
 	return sb.String()
