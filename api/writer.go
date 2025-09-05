@@ -19,6 +19,13 @@ func WriteAgentsFile(dest string, rs *RepoScan) error {
 // BuildAgentsContent constructs the markdown body.
 func BuildAgentsContent(rs *RepoScan) string {
 	sb := &strings.Builder{}
+
+	// MarkdownResult is set when a LLM generates the AGENTS.md content.
+	if len(rs.MarkdownResult) > 0 {
+		sb.WriteString(rs.MarkdownResult)
+		return sb.String()
+	}
+
 	sb.WriteString("# AGENTS\n\n")
 
 	// (1) Extracts the README.md content for an Overview
