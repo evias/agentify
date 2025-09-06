@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/prathyushnallamothu/ollamago"
@@ -20,10 +21,10 @@ const (
 func main() {
 	var (
 		outputPath string
-		useOllama  bool
 		modelName  string
 		hostURL    string
 		promptFile string
+		overwrite  bool
 	)
 
 	rootCmd := &cobra.Command{
@@ -33,22 +34,22 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			repoArg := args[0]
 
-			// If --ollama but no model provided, fallback:
-			if useOllama && modelName == "" {
+			// If no model provided, fallback to llama3.2:latest
+			if modelName == "" {
 				modelName = defaultModelName
 			}
 
-			if useOllama && hostURL == "" {
+			if hostURL == "" {
 				hostURL = "http://127.0.0.1:11434"
 			}
 
 			var client *ollamago.Client
-			if useOllama {
-				client = ollamago.NewClient(
-					ollamago.WithBaseURL(hostURL),
-					ollamago.WithTimeout(defaultTimeout),
-				)
-			}
+			client = ollamago.NewClient(
+				ollamago.WithBaseURL(hostURL),
+				ollamago.WithTimeout(defaultTimeout),
+			)
+
+			fmt.Println("Opening repository...")
 
 			// 1) Clone or open
 			workdir, cleanup, err := api.PrepareRepository(repoArg)
@@ -57,11 +58,24 @@ func main() {
 			}
 			defer cleanup()
 
+			// Detect existing AGENTS.md and ask to overwrite
+			if _, err := os.Stat(filepath.Join(workdir, "AGENTS.md")); err == nil {
+				if !overwrite {
+					fmt.Printf("An existing AGENTS.md was found, do you want to overwrite it? [y/N]: ")
+
+					var yes string
+					fmt.Scanf("%s", &yes)
+					if !slices.Contains([]string{"y", "Y", "yes", "YES"}, yes) {
+						return fmt.Errorf("An existing AGENTS.md file was found, please rename it first.")
+					}
+				}
+			}
+
+			fmt.Println("Scanning repository and instructing LLM...")
+
 			// 2) Scan
-			summary, err := api.ScanRepository(api.ScanOptions{
+			summary, err := api.ScanRepository(client, api.ScanOptions{
 				Root:       workdir,
-				UseOllama:  useOllama,
-				Ollama:     client,
 				Model:      modelName,
 				PromptFile: promptFile,
 			})
@@ -84,13 +98,12 @@ func main() {
 	}
 
 	rootCmd.Flags().StringVarP(&outputPath, "output", "o", "", "destination path for AGENTS.md")
-	rootCmd.Flags().BoolVar(&useOllama, "ollama", false, "enable Ollama LLM scanning")
-	rootCmd.Flags().StringVarP(&modelName, "model", "m", "", "name of the Ollama model (default llama3.2:latest)")
 	rootCmd.Flags().StringVarP(&hostURL, "host", "s", "http://127.0.0.1:11434", "Ollama server base URL")
+	rootCmd.Flags().StringVarP(&modelName, "model", "m", "", "name of the Ollama model (default llama3.2:latest)")
 	rootCmd.Flags().StringVarP(&promptFile, "prompt", "p", "", "path to custom scan prompt (markdown)")
+	rootCmd.Flags().BoolVarP(&overwrite, "yes", "y", false, "overwrite existing AGENTS.md file")
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 }

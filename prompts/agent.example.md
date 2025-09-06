@@ -23,5 +23,5 @@ by re:Software S.L. to satisfy security and general quality standards.
 ## Examples
 
 `agentify . -o AGENTS.md`
+`agentify . -o AGENTS.md -m gemma3:4b -s http://127.0.0.1:11434`
 `agentify github.com/evias/agentify -o AGENTS.md`
-`agentify github.com/evias/dotsig -o ~/AGENTS.md`

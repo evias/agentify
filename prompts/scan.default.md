@@ -9,11 +9,12 @@
 * You must generate a **concise** summary for the `## Overview` subtitle of the
   resulting `AGENTS.md` file, and you must always include the primary title as a
   subtitle of the overview section.
-* You should not include more than 3 paragraphs in the overview, excluding any
-  potential build and/or usage instructions.
-* If the `README.md` file contains build and/or usage instructions, make sure
-  to include these in a subtitle of the overview, e.g. `### Build instructions`
+* You should not include more than 3 paragraphs of text in the overview.
+* If the `README.md` file contains build and/or usage instructions, you must
+  include these in a subtitle of the overview, e.g. `### Build instructions`
   and/or `### Usage instructions`.
+* If the `README.md` file contains any `Examples`, you must include these as
+  well under the `### Examples` subtitles.
 * You must search for any *commands* and *libraries* available in the repository
   and you may include these under the `### Library` and/or `### Commands`
   subtitles.
@@ -22,8 +23,8 @@
 * You should not make up instructions, whatever instructions you provide must
   imperatively contain only relevant source code examples or commands and
   documentation from the repository itself.
-* If the repository contains any usage *notes* and `Examples`, you may include
-  these as well under the `### Examples` subtitle.
+* You must never explain your citations and/or choices. Do not ask any
+  follow-up questions.
 
 #### How to scan for commands and libraries
 
@@ -31,10 +32,13 @@
   libraries are usually implemented in `api/` or `internal/`. Note that the
   resulting `AGENTS.md` file should only contain exported modules and functions.
 * In C++ projects, commands are usually implemented in subfolders which contain
-  a `main.cpp` source code file. Otherwise, the `README.md` file should usually
-  mention some build instructions which permit to create the binaries. As for
-  the libraries implemented in C++, they are usually implemented in subfolders
-  which contain a `src/` or `devel/` subfolder of their own.
+  a `main.cpp` source code file. As for the libraries implemented in C++, they
+  are usually implemented in subfolders which contain a `src/` or `devel/`
+  subfolder of their own.
+* In Python projects, commands are usually available in a `bin/` subfolder, and
+  libraries are usually implemented in subfolders which a `init.py` file.
+* Otherwise, the `README.md` file should usually mention some build instructions
+  which permit to create the binaries and/or libraries.
 
 #### Example `AGENTS.md` file
 

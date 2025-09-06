@@ -1,13 +1,16 @@
-# agentify - make your work accessible to AI!
+# AGENTS
 
-A vibe-coded software that creates [AGENTS.md][link] files for your repositories.
-It instructs a LLM model of your choice to summarize the content of a repository.
+## Overview
 
-This software was originally built by Genesìs, a LLM model based on
-the `codex-mini` model, instructed by re:Software S.L, and later modified
-by re:Software S.L. to satisfy security and general quality standards.
+### agentify - make your work accessible to AI!
 
-## Usage instructions
+A vibe-coded software that creates AGENTS.md files for your repositories. This software was originally built by Genesìs, a LLM model based on the `codex-mini` model, instructed by re:Software S.L, and later modified by re:Software S.L. to satisfy security and general quality standards.
+
+### Build instructions
+
+The `agentify` tool is executed via the command line.
+
+### Usage instructions
 
 ```bash
 Usage:
@@ -22,17 +25,9 @@ Flags:
   -y, --yes             overwrite existing AGENTS.md file
 ```
 
-## Examples
+### Examples
 
 `agentify . -o AGENTS.md`
 `agentify github.com/evias/agentify -o AGENTS.md`
 `agentify github.com/evias/dotsig -o AGENTS.md -m llama3.2:latest`
 `agentify . -o AGENTS.md -m gemma3:4b -s http://127.0.0.1:11434`
-
-## License
-
-Copyright 2025 Grégory Saive <greg@evi.as> for re:Software S.L. (resoftware.es).
-
-Licensed under the [3-Clause BSD License](./LICENSE).
-
-[link]: https://agents.md
