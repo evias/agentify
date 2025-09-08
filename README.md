@@ -24,10 +24,12 @@ Flags:
 
 ## Examples
 
-`agentify . -o AGENTS.md`
-`agentify github.com/evias/agentify -o AGENTS.md`
-`agentify github.com/evias/dotsig -o AGENTS.md -m llama3.2:latest`
-`agentify . -o AGENTS.md -m gemma3:4b -s http://127.0.0.1:11434`
+```bash
+agentify . -o AGENTS.md
+agentify github.com/evias/agentify -o AGENTS.md
+agentify github.com/evias/dotsig -o AGENTS.md -m llama3.2:latest
+agentify . -o AGENTS.md -m gemma3:4b -s http://127.0.0.1:11434
+```
 
 ## License
 
